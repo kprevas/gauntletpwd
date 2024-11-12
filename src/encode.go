@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/hex"
 	"strconv"
 )
 import "syscall/js"
@@ -151,7 +152,7 @@ func encodePassword(playerData *PlayerData) (result string) {
 		}
 	}()
 
-	buffer := make([]byte, 127)
+	buffer := make([]byte, 19)
 	b := Bitpack{Checksum: 0, Position: 0, Buffer: buffer}
 
 	b.Pack(int(playerData.health/0x64), 0xa)
@@ -227,12 +228,18 @@ func encodePassword(playerData *PlayerData) (result string) {
 
 	b.Pack(b.Checksum, 0xa)
 
+	s := hex.EncodeToString(buffer)
+	for i := 4; i < len(s); i += 5 {
+		s = s[:i] + " " + s[i:]
+	}
+	js.Global().Get("console").Call("warn", s)
+
 	b = Bitpack{Checksum: 0, Position: 0, Buffer: buffer}
 
 	password := ""
 	for n := 0x1d; n >= 0; n-- {
 		d0 := b.Unpack(0x5) + n
-		nameChar := playerData.name[n%len(playerData.name)]
+		nameChar := playerData.name[(0x1d-n)%len(playerData.name)]
 		d0 += int(nameChar)
 		d0 &= 0x1f
 		password += string("J2H=K7+U0W9GTR3F4:6LC-1Y8EXMD5PA"[d0])
