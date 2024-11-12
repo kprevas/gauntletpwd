@@ -7,7 +7,8 @@ WebAssembly.instantiateStreaming(fetch('../build/gauntletpwd.wasm'), go.importOb
 const inputs = Array.from(document.querySelectorAll('input'));
 
 document.querySelector('button').addEventListener('click', () => {
-    const values = inputs.map(input => input.value);
+    const values = inputs.map(input =>
+        input.type === 'checkbox' ? input.checked : input.value);
     values.splice(35, 0, document.querySelector('select').value);
     const pwd = encode(...values);
     document.querySelector('#output').innerHTML = `

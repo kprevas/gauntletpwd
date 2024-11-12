@@ -109,6 +109,7 @@ func (b *Bitpack) WriteBit(pos int, bit int) {
 }
 
 func (b *Bitpack) Pack(value int, numBits int) {
+	js.Global().Get("console").Call("log", "pack", value, numBits)
 	for i := numBits - 1; i >= 0; i-- {
 		mask := int(1) << i
 		bit := 0
@@ -157,12 +158,19 @@ func encodePassword(playerData *PlayerData) (result string) {
 
 	b.Pack(int(playerData.health/0x64), 0xa)
 
+	logBuffer(buffer)
 	b.Pack(boolToInt(playerData.extraMagicPower), 0x1)
+	logBuffer(buffer)
 	b.Pack(boolToInt(playerData.extraShotPower), 0x1)
+	logBuffer(buffer)
 	b.Pack(boolToInt(playerData.extraShotSpeed), 0x1)
+	logBuffer(buffer)
 	b.Pack(boolToInt(playerData.extraFightPower), 0x1)
+	logBuffer(buffer)
 	b.Pack(boolToInt(playerData.extraDefense), 0x1)
+	logBuffer(buffer)
 	b.Pack(boolToInt(playerData.extraSpeed), 0x1)
+	logBuffer(buffer)
 
 	towers := 0
 	if playerData.earthTower {
@@ -228,11 +236,7 @@ func encodePassword(playerData *PlayerData) (result string) {
 
 	b.Pack(b.Checksum, 0xa)
 
-	s := hex.EncodeToString(buffer)
-	for i := 4; i < len(s); i += 5 {
-		s = s[:i] + " " + s[i:]
-	}
-	js.Global().Get("console").Call("warn", s)
+	logBuffer(buffer)
 
 	b = Bitpack{Checksum: 0, Position: 0, Buffer: buffer}
 
@@ -248,6 +252,14 @@ func encodePassword(playerData *PlayerData) (result string) {
 	return password
 }
 
+func logBuffer(buffer []byte) {
+	s := hex.EncodeToString(buffer)
+	for i := 4; i < len(s); i += 5 {
+		s = s[:i] + " " + s[i:]
+	}
+	js.Global().Get("console").Call("warn", s)
+}
+
 func toInt(str string) int {
 	i, _ := strconv.Atoi(str)
 	return i
@@ -255,19 +267,20 @@ func toInt(str string) int {
 
 func encodeWrapper() js.Func {
 	return js.FuncOf(func(this js.Value, args []js.Value) any {
+		js.Global().Get("console").Call("warn", args[5].String())
 		playerData := PlayerData{
 			name:              args[0].String(),
 			health:            int32(toInt(args[1].String())),
-			extraMagicPower:   args[2].String() == "true",
-			extraShotPower:    args[3].String() == "true",
-			extraShotSpeed:    args[4].String() == "true",
-			extraFightPower:   args[5].String() == "true",
-			extraDefense:      args[6].String() == "true",
-			extraSpeed:        args[7].String() == "true",
-			earthTower:        args[8].String() == "true",
-			waterTower:        args[9].String() == "true",
-			fireTower:         args[10].String() == "true",
-			windTower:         args[11].String() == "true",
+			extraMagicPower:   args[2].Bool(),
+			extraShotPower:    args[3].Bool(),
+			extraShotSpeed:    args[4].Bool(),
+			extraFightPower:   args[5].Bool(),
+			extraDefense:      args[6].Bool(),
+			extraSpeed:        args[7].Bool(),
+			earthTower:        args[8].Bool(),
+			waterTower:        args[9].Bool(),
+			fireTower:         args[10].Bool(),
+			windTower:         args[11].Bool(),
 			gold:              int32(toInt(args[12].String())),
 			experience:        int32(toInt(args[13].String())),
 			levelsMagic:       int16(toInt(args[14].String())),
@@ -279,13 +292,13 @@ func encodeWrapper() js.Func {
 			equippedWeapon:    int16(toInt(args[20].String())),
 			equippedArmor:     int16(toInt(args[21].String())),
 			equippedAccessory: int16(toInt(args[22].String())),
-			defendOrb:         args[23].String() == "true",
-			healDrink:         args[24].String() == "true",
-			warpWing:          args[25].String() == "true",
-			floatRing:         args[26].String() == "true",
-			fightRing:         args[27].String() == "true",
-			healRing:          args[28].String() == "true",
-			mirrorRing:        args[29].String() == "true",
+			defendOrb:         args[23].Bool(),
+			healDrink:         args[24].Bool(),
+			warpWing:          args[25].Bool(),
+			floatRing:         args[26].Bool(),
+			fightRing:         args[27].Bool(),
+			healRing:          args[28].Bool(),
+			mirrorRing:        args[29].Bool(),
 			unknown0x1E2:      int8(toInt(args[30].String())),
 			timePlayed:        int32(toInt(args[31].String())),
 			monstersKilled:    int32(toInt(args[32].String())),
