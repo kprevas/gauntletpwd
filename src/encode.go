@@ -45,13 +45,13 @@ type PlayerData struct {
 	healRing   bool
 	mirrorRing bool
 
-	unknown0x1E2 int8
+	shopkeeperConversations int8
 
 	timePlayed     int32
 	monstersKilled int32
 
 	unknown0x240 int32
-	unknown0x130 int32
+	unknown0x130 int16
 
 	playerType int16
 
@@ -158,19 +158,12 @@ func encodePassword(playerData *PlayerData) (result string) {
 
 	b.Pack(int(playerData.health/0x64), 0xa)
 
-	logBuffer(buffer)
 	b.Pack(boolToInt(playerData.extraMagicPower), 0x1)
-	logBuffer(buffer)
 	b.Pack(boolToInt(playerData.extraShotPower), 0x1)
-	logBuffer(buffer)
 	b.Pack(boolToInt(playerData.extraShotSpeed), 0x1)
-	logBuffer(buffer)
 	b.Pack(boolToInt(playerData.extraFightPower), 0x1)
-	logBuffer(buffer)
 	b.Pack(boolToInt(playerData.extraDefense), 0x1)
-	logBuffer(buffer)
 	b.Pack(boolToInt(playerData.extraSpeed), 0x1)
-	logBuffer(buffer)
 
 	towers := 0
 	if playerData.earthTower {
@@ -225,7 +218,8 @@ func encodePassword(playerData *PlayerData) (result string) {
 
 	b.Pack(int(packKeysAndPotions(playerData)), 0x7)
 
-	b.Pack(int(playerData.unknown0x1E2), 0x3)
+	shopkeeperFlags := ([]int8{0, 1, 3, 7, 15, 31})[playerData.shopkeeperConversations]
+	b.Pack(int(shopkeeperFlags), 0x3)
 	b.Pack(int(min(playerData.timePlayed/0x3c, 0x176f)), 0xd)
 	b.Pack(int(min(playerData.monstersKilled, 0x186a0)), 0x11)
 
@@ -269,45 +263,45 @@ func encodeWrapper() js.Func {
 	return js.FuncOf(func(this js.Value, args []js.Value) any {
 		js.Global().Get("console").Call("warn", args[5].String())
 		playerData := PlayerData{
-			name:              args[0].String(),
-			health:            int32(toInt(args[1].String())),
-			extraMagicPower:   args[2].Bool(),
-			extraShotPower:    args[3].Bool(),
-			extraShotSpeed:    args[4].Bool(),
-			extraFightPower:   args[5].Bool(),
-			extraDefense:      args[6].Bool(),
-			extraSpeed:        args[7].Bool(),
-			earthTower:        args[8].Bool(),
-			waterTower:        args[9].Bool(),
-			fireTower:         args[10].Bool(),
-			windTower:         args[11].Bool(),
-			gold:              int32(toInt(args[12].String())),
-			experience:        int32(toInt(args[13].String())),
-			levelsMagic:       int16(toInt(args[14].String())),
-			levelsShotPower:   int16(toInt(args[15].String())),
-			levelsShotSpeed:   int16(toInt(args[16].String())),
-			levelsFightPower:  int16(toInt(args[17].String())),
-			levelsDefense:     int16(toInt(args[18].String())),
-			levelsSpeed:       int16(toInt(args[19].String())),
-			equippedWeapon:    int16(toInt(args[20].String())),
-			equippedArmor:     int16(toInt(args[21].String())),
-			equippedAccessory: int16(toInt(args[22].String())),
-			defendOrb:         args[23].Bool(),
-			healDrink:         args[24].Bool(),
-			warpWing:          args[25].Bool(),
-			floatRing:         args[26].Bool(),
-			fightRing:         args[27].Bool(),
-			healRing:          args[28].Bool(),
-			mirrorRing:        args[29].Bool(),
-			unknown0x1E2:      int8(toInt(args[30].String())),
-			timePlayed:        int32(toInt(args[31].String())),
-			monstersKilled:    int32(toInt(args[32].String())),
-			unknown0x240:      int32(toInt(args[33].String())),
-			unknown0x130:      int32(toInt(args[34].String())),
-			playerType:        int16(toInt(args[35].String())),
-			unknown0x18A:      int16(toInt(args[36].String())),
-			keys:              int16(toInt(args[37].String())),
-			potions:           int16(toInt(args[38].String())),
+			name:                    args[0].String(),
+			health:                  int32(toInt(args[1].String())),
+			extraMagicPower:         args[2].Bool(),
+			extraShotPower:          args[3].Bool(),
+			extraShotSpeed:          args[4].Bool(),
+			extraFightPower:         args[5].Bool(),
+			extraDefense:            args[6].Bool(),
+			extraSpeed:              args[7].Bool(),
+			earthTower:              args[8].Bool(),
+			waterTower:              args[9].Bool(),
+			fireTower:               args[10].Bool(),
+			windTower:               args[11].Bool(),
+			gold:                    int32(toInt(args[12].String())),
+			experience:              int32(toInt(args[13].String())),
+			levelsMagic:             int16(toInt(args[14].String())),
+			levelsShotPower:         int16(toInt(args[15].String())),
+			levelsShotSpeed:         int16(toInt(args[16].String())),
+			levelsFightPower:        int16(toInt(args[17].String())),
+			levelsDefense:           int16(toInt(args[18].String())),
+			levelsSpeed:             int16(toInt(args[19].String())),
+			equippedWeapon:          int16(toInt(args[20].String())),
+			equippedArmor:           int16(toInt(args[21].String())),
+			equippedAccessory:       int16(toInt(args[22].String())),
+			defendOrb:               args[23].Bool(),
+			healDrink:               args[24].Bool(),
+			warpWing:                args[25].Bool(),
+			floatRing:               args[26].Bool(),
+			fightRing:               args[27].Bool(),
+			healRing:                args[28].Bool(),
+			mirrorRing:              args[29].Bool(),
+			shopkeeperConversations: int8(toInt(args[30].String())),
+			timePlayed:              int32(toInt(args[31].String())),
+			monstersKilled:          int32(toInt(args[32].String())),
+			unknown0x240:            int32(toInt(args[33].String())),
+			unknown0x130:            int16(toInt(args[34].String())),
+			playerType:              int16(toInt(args[35].String())),
+			unknown0x18A:            int16(toInt(args[36].String())),
+			keys:                    int16(toInt(args[37].String())),
+			potions:                 int16(toInt(args[38].String())),
 		}
 		return encodePassword(&playerData)
 	})
