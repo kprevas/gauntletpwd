@@ -37,6 +37,8 @@ function charValues(baseAddr, t)
     table.insert(t, memory.read_u16_be(baseAddr + 0xf0) .. ',')
     table.insert(t, memory.read_u16_be(baseAddr + 0xb4) .. ',')
     table.insert(t, memory.read_u16_be(baseAddr + 0x14a) .. ',')
+    table.insert(t, memory.read_u16_be(baseAddr + 0xcc) .. ',')
+    table.insert(t, memory.read_u16_be(baseAddr + 0xce) .. ',')
 end
 
 local t = {}
